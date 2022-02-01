@@ -29,20 +29,37 @@ module.exports = {
     },
 
     create: function(req, res) {
-        const title = req.param('title')
-        const body = req.param('body')
+        const title = req.body.title
+        const postBody = req.body.postBody
 
-        console.log(title + " " + body)
-        sails.log.debug(title + " " + body)
+        // Use Postman to send POST request
+        sails.log.debug("Title: " + title)
+        sails.log.debug("Body: " + postBody)
 
         const newPosts = {
             id: 4,
             title: title,
-            body: body
+            body: postBody
         }
         allPosts.push(newPosts)
         res.end()
     },
+
+    // create: function(req, res) {
+    //     const title = req.param('title')
+    //     const body = req.param('body')
+
+    //     console.log(title + " " + body)
+    //     sails.log.debug(title + " " + body) // debug, warn etc.
+
+        // const newPosts = {
+        //     id: 4,
+        //     title: title,
+        //     body: body
+        // }
+        // allPosts.push(newPosts)
+        // res.end()
+    // },
 
     // create: function(req, res) {
     //     const newPosts = {
