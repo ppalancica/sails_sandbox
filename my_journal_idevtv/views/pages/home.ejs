@@ -9,6 +9,24 @@
                 border: 1px solid rgb(199, 199, 199);
             }
         </style>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+            async function handleDeletePost(e) {
+                console.log("Deleting post...")
+                console.log(e.target.id)
+
+                const postId = e.target.id
+                const url = '/post/' + postId
+                try {
+                    const response = await axios.delete(url)
+                    console.log(response)
+                    location.reload()
+                } catch (err) {
+                    console.log(err.toString())
+                    alert(err.toString())
+                }
+            }
+        </script>
     </head>
     <body style='background-color: rgb(235, 235, 235); '>
         This will show a list of posts
@@ -25,6 +43,7 @@
                 <div class='post-container'>
                     <div><%= p.title %></div>
                     <div><%= p.body %></div>
+                    <button id="<%= p.id %>" onClick="handleDeletePost(event)">Delete</button>
                 </div>
             <% }) %>
         </div>
