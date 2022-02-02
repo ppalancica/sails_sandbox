@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <style>
+            .post-container {
+                background-color: white;
+                margin: 16px;
+                padding: 16px;
+                border-radius: 5px;
+                border: 1px solid rgb(199, 199, 199);
+            }
+        </style>
+    </head>
+    <body style='background-color: rgb(235, 235, 235); '>
+        This will show a list of posts
+
+        <form action="/post" method="POST" class="post-container">
+            <div>Create Post</div>
+            <input name="title" type="text" placeholder="Post Title">
+            <input name="postBody" type="text" placeholder="Post Body">
+            <button type="submit">Submit</button>
+        </form>
+
+        <div>
+            <% allPosts.forEach(p => { %>
+                <div class='post-container'>
+                    <div><%= p.title %></div>
+                    <div><%= p.body %></div>
+                </div>
+            <% }) %>
+        </div>
+    </body>
+</html>
