@@ -45,32 +45,32 @@ module.exports = {
     //     res.send(allPosts)
     // },
 
-    create: function(req, res) {
-        const title = req.body.title
-        const postBody = req.body.postBody
+    // create: function(req, res) {
+    //     const title = req.body.title
+    //     const postBody = req.body.postBody
 
-        // Use Postman to send POST request
-        sails.log.debug("Title: " + title)
-        sails.log.debug("Body: " + postBody)
+    //     // Use Postman to send POST request
+    //     sails.log.debug("Title: " + title)
+    //     sails.log.debug("Body: " + postBody)
 
-        Post.create({ title: title, body: postBody }).exec(function(err) {
-            if (err) {
-                return res.serverError(err.toString())
-            }
-            console.log("Finished creating post object")
+    //     Post.create({ title: title, body: postBody }).exec(function(err) {
+    //         if (err) {
+    //             return res.serverError(err.toString())
+    //         }
+    //         console.log("Finished creating post object")
 
-            return res.redirect('/home')
+    //         return res.redirect('/home')
 
-            // return res.end()
-        })
-        // const newPosts = {
-        //     id: 4,
-        //     title: title,
-        //     body: postBody
-        // }
-        // allPosts.push(newPosts)
-        // res.end()
-    },
+    //         // return res.end()
+    //     })
+    //     // const newPosts = {
+    //     //     id: 4,
+    //     //     title: title,
+    //     //     body: postBody
+    //     // }
+    //     // allPosts.push(newPosts)
+    //     // res.end()
+    // },
 
     // create: function(req, res) {
     //     const title = req.param('title')
@@ -118,11 +118,11 @@ module.exports = {
     //     res.send(postId)
     // }
 
-    delete: async function(req, res) {
-        const postId = req.param('postId')
+    // delete: async function(req, res) {
+    //     const postId = req.param('postId')
         
-        await Post.destroy({ id: postId })
+    //     await Post.destroy({ id: postId })
 
-        res.send('Finished deleting post...')
-    }
+    //     res.send('Finished deleting post...')
+    // }
 }

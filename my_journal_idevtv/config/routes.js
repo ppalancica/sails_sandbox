@@ -27,9 +27,11 @@ module.exports.routes = {
   'GET /post/:postId': 'PostController.findById',
   
   // '/create': 'PostController.create'
-  'POST /post': 'PostController.create',
+  // 'POST /post': 'PostController.create',
+  'POST /post': 'post/create',
 
-  'DELETE /post/:postId': 'PostController.delete',
+  'DELETE /post/:postId': 'post/delete',
+  // 'DELETE /post/:postId': 'PostController.delete',
 
   'GET /home': 'post/home'
 
