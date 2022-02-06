@@ -1,0 +1,670 @@
+iOS Project here:
+
+https://github.com/ppalancica/my_journal_idevtv-iOS
+
+
+
+
+Fullstack Node iOS - Intro to SailsMVC REST API and Routes (Ep 1)
+https://www.youtube.com/watch?v=WRAAMMycrNM&list=PL0dzCUj1L5JHV0pF04MmtgdALjhR70Lzj&index=1
+
+
+
+--- Video 1
+
+sudo npm install sails -g
+
+cd ~/idevtv
+mkdir sails_sandbox
+cd sails_sandbox
+
+ls
+
+sails generate new my_journal_idevtv
+
+(Choose option 2 to create Empty Project)
+
+// ---
+
+ppalancica@Pavels-MacBook-Pro sails_sandbox % sails generate new my_journal_idevtv
+ Choose a template for your new Sails app:
+ 1. Web App  ·  Extensible project with auth, login, & password recovery
+ 2. Empty    ·  An empty Sails app, yours to configure
+ (type "?" for help, or <CTRL+C> to cancel)
+? 2
+ info: Installing dependencies...
+Press CTRL+C to cancel.
+(to skip this step in the future, use --fast)
+ info: Created a new Sails app `my-journal-idevtv`!
+
+// ---
+
+cd my_journal_idevtv
+node app.js
+
+// ---
+
+ppalancica@Pavels-MacBook-Pro my_journal_idevtv % node app.js
+ info:
+ info:                .-..-.
+ info:
+ info:    Sails              <|    .-..-.
+ info:    v1.5.2              |\
+ info:                       /|.\
+ info:                      / || \
+ info:                    ,'  |'  \
+ info:                 .-'.-==|/_--'
+ info:                 `--'-------'
+ info:    __---___--___---___--___---___--___
+ info:  ____---___--___---___--___---___--___-__
+ info:
+ info: Server lifted in `/Users/ppalancica/idevtv/sails_sandbox/my_journal_idevtv`
+ info: To shut down Sails, press <CTRL> + C at any time.
+ info: Read more at https://sailsjs.com/support.
+
+debug: -------------------------------------------------------
+debug: :: Mon Jan 31 2022 14:26:24 GMT+0200 (Eastern European Standard Time)
+
+debug: Environment : development
+debug: Port        : 1337
+debug: -------------------------------------------------------
+
+// ---
+
+Application is loaded on port 1337 by default.
+Open localhost:1337 inside the browser to see the brand new app that was just generated.
+
+Open config/routes.js file and add a new route:
+
+'/posts': 'PostController.posts'
+
+Create a PostController.js file inside api/controllers:
+
+module.exports = {
+    posts: function(req, res) {
+        res.send('We are hitting the /posts endpoint')
+    }
+}
+
+Control + C in the terminal, then node app.js to restart the app.
+
+Open http://localhost:1337/posts and should see this message:
+
+We are hitting the /posts endpoint
+
+Control + C then:
+
+sudo npm i -g nodemon
+
+To launch our app.js file:
+
+nodemon
+
+Install sails morgan:
+
+npm install sails-hook-morgan
+
+// ---
+
+If we want to save the dependency:
+
+npm install -S sails-hook-morgan
+
+// ---
+
+Change a api/controllers/PostController.js file contents to:
+
+module.exports = {
+    posts: function(req, res) {
+        const post1 = {
+            id: 1,
+            title: "Post 1 Title",
+            body: "Contents of Post 1 goes here"
+        }
+
+        const post2 = {
+            id: 2,
+            title: "Post 2 Title",
+            body: "Contents of Post 2 goes here"
+        }
+        // res.send('We are hitting the /posts endpoint')
+        // res.send(post1)
+        res.send([post1, post2])
+    }
+}
+
+Open http://localhost:1337/posts and should see this message:
+
+[
+  {
+    "id": 1,
+    "title": "Post 1 Title",
+    "body": "Contents of Post 1 goes here"
+  },
+  {
+    "id": 2,
+    "title": "Post 2 Title",
+    "body": "Contents of Post 2 goes here"
+  }
+]
+
+Slugs.
+
+Add to routes.js:
+
+'/findById/:postId': 'PostController.findById'
+
+Add the new route to PostController.js:
+
+findById: function(req, res) {
+    const postId = req.param("postId")
+    res.send(postId)
+}
+
+Make more changes to PostController.js so it looks like this:
+
+// Hardcoded data
+
+const post1 = {
+    id: 1,
+    title: "Post 1 Title",
+    body: "Contents of Post 1 goes here"
+}
+
+const post2 = {
+    id: 2,
+    title: "Post 2 Title",
+    body: "Contents of Post 2 goes here"
+}
+
+const post3 = {
+    id: 3,
+    title: "Post 3 Title",
+    body: "Contents of Post 3 goes here"
+}
+
+const allPosts = [post1, post2, post3]
+
+module.exports = {
+    posts: function(req, res) {
+        // res.send('We are hitting the /posts endpoint')
+        // res.send(post1)
+        // res.send([post1, post2])
+        res.send(allPosts)
+    },
+
+    findById: function(req, res) {
+        const postId = req.param("postId")
+        const filteredPosts = allPosts.filter(p => { return p.id == postId })
+
+        // const filteredPosts = allPosts.filter(function(p) {
+        //     return p.id == postId
+        // })
+
+        if (filteredPosts.length > 0) {
+            res.send(filteredPosts[0])
+        } else {
+            res.send('Failed to find post with id: ' + postId)
+        }
+    }
+}
+
+Add a new create route to PostController.js:
+
+create: function(req, res) {
+    const newPosts = {
+        id: 4,
+        title: "Post 4 Title",
+        body: "Contents of Post 4 goes here"
+    }
+    allPosts.push(newPosts)
+    res.end()
+},
+
+Add the new route inside routes.js:
+
+'/create': 'PostController.create'
+
+Let's refactor create:
+
+create: function(req, res) {
+    const title = req.param('title')
+    const body = req.param('body')
+
+    console.log(title + " " + body)
+    sails.log.debug(title + " " + body)
+
+    const newPosts = {
+        id: 4,
+        title: title,
+        body: body
+    }
+    allPosts.push(newPosts)
+    res.end()
+}
+
+Open http://localhost:1337/create?title=some-title&body=some-body in browser
+and we should see this message:
+
+some-title some-body
+
+
+--- Video 2
+
+POST requests
+
+x-wwww-form-urlencoded
+
+Replace:
+
+create: function(req, res) {
+    const title = req.param('title')
+    const body = req.param('body')
+
+    console.log(title + " " + body)
+    sails.log.debug(title + " " + body) // debug, warn etc.
+
+    const newPosts = {
+        id: 4,
+        title: title,
+        body: body
+    }
+    allPosts.push(newPosts)
+    res.end()
+},
+
+with:
+
+create: function(req, res) {
+    const title = req.body.title
+    const postBody = req.body.postBody
+
+    // Use Postman to send POST request
+    sails.log.debug("Title: " + title)
+    sails.log.debug("Body: " + postBody)
+
+    const newPosts = {
+        id: 4,
+        title: title,
+        body: postBody
+    }
+    allPosts.push(newPosts)
+    res.end()
+},
+
+Data persistence using Waterline ORM.
+
+https://sailsjs.com/documentation/reference/waterline-orm
+
+Create a Post.js file insde api/models:
+
+// ---
+
+Excuse my interruption, but it looks like this app
+ does not have a "migrate" setting configured yet.
+ (perhaps this is the first time you're lifting it with models?)
+
+ Tired of seeing this prompt?  Edit config/models.js.
+
+ In a production environment (NODE_ENV=production) Sails always uses
+ migrate:'safe' to protect against inadvertent deletion of your data.
+ But during development, you have a few different options:
+
+ 1. FOR DEV:      alter   wipe/drop and try to re-insert ALL my data (recommended)
+ 2. FOR TESTS:    drop    wipe/drop ALL my data every time I lift Sails
+ 3. FOR STAGING:  safe    don't auto-migrate my data. I will do it myself
+
+ Read more: sailsjs.com/docs/concepts/models-and-orm/model-settings#?migrate
+
+// ---
+
+
+Choose 1 for alter.
+
+// ---
+
+prompt: ?:  1
+1
+--------------------------------------------------------------------------------
+ OK!  Temporarily using migrate:'alter'...
+ To skip this prompt in the future, edit config/models.js.
+--------------------------------------------------------------------------------
+
+ info: ·• Auto-migrating...  (alter)
+ info:    Hold tight, this could take a moment.
+ info:  ✓ Auto-migration complete.
+
+// ---
+
+Open config/models.js and uncomment this line:
+
+// migrate: 'alter',
+
+Change Post.js to:
+
+module.exports = {
+    attributes: {
+        title: {
+            type: 'string',
+            required: true
+        },
+        body: {
+            type: 'string',
+            required: true
+        }
+    }
+}
+
+Update the create function inside PostController.js:
+
+create: function(req, res) {
+    const title = req.body.title
+    const postBody = req.body.postBody
+
+    // Use Postman to send POST request to http://localhost:1337/post
+    // Set title and postBody parameters for body of the request
+    sails.log.debug("Title: " + title)
+    sails.log.debug("Body: " + postBody)
+
+    Post.create({ title: title, body: postBody }).exec(function(err) {
+        if (err) {
+            return res.serverError(err.toString())
+        }
+        console.log("Finished creating post object")
+        return res.end()
+    })
+},
+
+
+If you get this error:
+
+TypeError: Post.create is not a function
+at Object.create [as post/create]
+
+make sure you have this line commented:
+
+// const Post = require("../models/Post")
+
+Comment this line:
+
+// const allPosts = [post1, post2, post3]
+
+And updated posts function:
+
+posts: async function(req, res) {
+    try {
+        const posts = await Post.find()
+        res.send(posts)
+    } catch (err) {
+        res.serverError(err.toString())
+    }
+
+    // Post.find().exec(function(err, posts) {
+    //     if (err) {
+    //         return res.serverError(err.toString())
+    //     }
+    //     res.send(posts)
+    // })
+},
+
+Search for Waterline sails create to see more on how to use it.
+
+Let's add functionality to delete a post.
+
+Add to routes.js:
+
+'DELETE /post': 'PostController.delete'
+
+Add to PostController.js:
+
+delete: function(req, res) {
+    res.send('Trying to delete a post...')
+}
+
+Test DELETE http://localhost:1337/post in Postman.
+
+Add postId to DELETE post route:
+
+'DELETE /post/:postId': 'PostController.delete'
+
+Update the delete method to:
+
+delete: async function(req, res) {
+    const postId = req.param('postId')
+
+    await Post.destroy({ id: postId })
+
+    res.send('Finished deleting post...')
+}
+
+Test DELETE http://localhost:1337/post/3 (for instance) in Postman.
+
+Inside config/blueprints.js we can set this:
+
+rest: false,
+
+for:
+
+"Automatically expose RESTful routes for your models?"
+
+
+--- Video 3
+
+Fullstack MyJournal - Home Posts CRUD in HTML EJS
+
+Create a post folder inside api/controllers, and home.js file inside it:
+
+module.exports = function(req, res) {
+    console.log("This route shows home page of posts")
+    res.end()
+}
+
+Add to routes.js:
+
+'GET /home': 'post/home'
+
+Open http://localhost:1337/home in browser and see an empty page.
+
+Create home.ejs page inside views/pages:
+
+<html>
+    <body>
+        This will show a list of posts
+    </body>
+</html>
+
+Updated home.js to:
+
+module.exports = function(req, res) {
+    console.log("This route shows home page of posts")
+    res.view('pages/home')
+    // res.end()
+}
+
+Open http://localhost:1337/home and should see the message:
+
+This will show a list of posts
+
+Change home.js to:
+
+// const Post = require("../../models/Post")
+
+module.exports = async function(req, res) {
+    console.log("This route shows home page of posts")
+
+    const allPosts = await Post.find()
+
+    res.view('pages/home',
+        { allPosts }
+    )
+    // res.end()
+}
+
+Change home.ejs to:
+
+<html>
+    <head>
+        <style>
+            .post-container {
+                background-color: white;
+                margin: 16px;
+                padding: 16px;
+                border-radius: 5px;
+                border: 1px solid rgb(199, 199, 199);
+            }
+        </style>
+    </head>
+    <body style='background-color: rgb(235, 235, 235); '>
+        This will show a list of posts
+
+        <form action="/post" method="POST" class="post-container">
+            <div>Create Post</div>
+            <input name="title" type="text" placeholder="Post Title">
+            <input name="postBody" type="text" placeholder="Post Body">
+            <button type="submit">Submit</button>
+        </form>
+
+        <div>
+            <% allPosts.forEach(p => { %>
+                <div class='post-container'>
+                    <div><%= p.title %></div>
+                    <div><%= p.body %></div>
+                </div>
+            <% }) %>
+        </div>
+    </body>
+</html>
+
+Insid PostController.js replace this line:
+
+return res.end()
+
+with:
+
+res.redirect('/home')
+
+return res.redirect('/home')
+
+Functionality to Delete a post from browser/html.
+
+Add a Delete Post button:
+
+<div class='post-container'>
+    <div><%= p.title %></div>
+    <div><%= p.body %></div>
+    <button id="<%= p.id %>" onClick="handleDeletePost(event)">Delete</button>
+</div>
+
+https://axios-http.com/docs/intro
+https://github.com/axios/axios
+https://blog.logrocket.com/how-to-make-http-requests-like-a-pro-with-axios/
+https://www.digitalocean.com/community/tutorials/js-axios-vanilla-js
+https://flaviocopes.com/axios/
+
+We'll use axios, so add this line inside the head tag:
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+Also add the handleDeletePost(event) function for handling the event:
+
+<script>
+    async function handleDeletePost(e) {
+        console.log("Deleting post...")
+        console.log(e.target.id)
+
+        const postId = e.target.id
+        const url = '/post/' + postId
+        try {
+            const response = await axios.delete(url)
+            console.log(response)
+            location.reload()
+        } catch (err) {
+            console.log(err.toString())
+            alert(err.toString())
+        }
+    }
+</script>
+
+Open http://localhost:1337/home
+
+
+--- Video 4
+
+Source code here:
+https://github.com/ppalancica/my_journal_idevtv-iOS
+
+
+--- Video 5
+
+https://sailsjs.com/documentation/concepts/actions-and-controllers
+
+Comment create function inside PostController.js
+
+Stop the server and run this command:
+
+sails generate action post/create
+
+Should generate a create.js file inside api/controllers/post folder.
+
+Insider routes.js replace this line:
+
+'POST /post': 'PostController.create',
+
+with:
+
+'POST /post': 'post/create',
+
+Use Postman to send POST request to http://localhost:1337/post and response should be OK.
+
+Comment delete function inside PostController.js
+
+Stop the server and run this command:
+
+sails generate action post/delete
+
+
+--- Video 5 - Fullstack SailsMVC User Authentication and Login
+
+
+sails generate new myjournal_webapp_idevtv
+
+Choose 1. Web App
+
+Inside config/local.js add this property:
+
+port: 1440
+
+Search "sails js actions and controllers":
+
+https://sailsjs.com/documentation/concepts/actions-and-controllers
+
+open localhost:1440/signup
+
+We have a problem, because everytime the app gets restarted - we get kkicked out
+and redirected to login page.
+
+Search for "Configure sails mvc sessions"
+
+https://sailsjs.com/documentation/reference/configuration/sails-config-session
+
+For example, to use Mongo as your session store, install connect-mongo:
+
+npm install connect-mongo@1.1.0 --save --save-exact
+
+nodemon
+
+Open config/session.js:
+
+Add from 19:10
+
+Drag home.ejs from the other project to our new project.
+Also copy the rout that loads that page.
+
+Drag Post.js from our old projects to models.
+
+Create a post folder and remove the 3 files from old project to the new one.
+
+// Finish watching from 22:16
+
+
+
